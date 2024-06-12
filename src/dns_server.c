@@ -405,6 +405,8 @@ struct dns_server {
 	pthread_mutex_t request_list_lock;
 	struct list_head request_list;
 	atomic_t request_num;
+	atomic_t cache_hit;
+	atomic_t cache_miss;
 
 	DECLARE_HASHTABLE(request_pending, 4);
 	pthread_mutex_t request_pending_lock;
@@ -2392,6 +2394,11 @@ static int _dns_request_post(struct dns_server_post_context *context)
 		 get_host_by_addr(clientip, sizeof(clientip), (struct sockaddr *)&request->addr), request->qtype, request->id,
 		 request->dns_group_name[0] != '\0' ? request->dns_group_name : DNS_SERVER_GROUP_DEFAULT,
 		 get_tick_count() - request->send_tick);
+	
+	// atomic_add(1, &server.cache_hit);
+	// tlog(TLOG_INFO, "server.cache_hit: %d ", server.cache_hit);
+	atomic_add(1, &server.cache_miss);
+	tlog(TLOG_INFO, "server.cache_miss: %d ", server.cache_miss);
 
 	ret = _dns_reply_inpacket(request, context->inpacket, context->inpacket_len);
 	if (ret != 0) {
@@ -4495,7 +4502,12 @@ static int _dns_server_reply_passthrough(struct dns_server_post_context *context
 			tlog(TLOG_ERROR, "update packet ttl failed.");
 			return -1;
 		}
+		
 		_dns_reply_inpacket(request, context->inpacket, context->inpacket_len);
+		// atomic_add(1, &server.cache_miss);
+		// tlog(TLOG_INFO, "server.cache_miss: %d ", server.cache_miss);
+		atomic_add(1, &server.cache_hit);
+		tlog(TLOG_INFO, "server.cache_hit: %d ", server.cache_hit);
 
 		tlog(TLOG_INFO, "result: %s, client: %s, qtype: %d, id: %d, group: %s, time: %lums", request->domain,
 			 get_host_by_addr(clientip, sizeof(clientip), (struct sockaddr *)&request->addr), request->qtype,
