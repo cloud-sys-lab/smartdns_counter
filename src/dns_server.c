@@ -2398,7 +2398,7 @@ static int _dns_request_post(struct dns_server_post_context *context)
 	// atomic_add(1, &server.cache_hit);
 	// tlog(TLOG_INFO, "server.cache_hit: %d ", server.cache_hit);
 	atomic_add(1, &server.cache_miss);
-	tlog(TLOG_INFO, "server.cache_miss: %d ", server.cache_miss);
+	tlog(TLOG_ERROR, "server.cache_miss: %d ", server.cache_miss);
 
 	ret = _dns_reply_inpacket(request, context->inpacket, context->inpacket_len);
 	if (ret != 0) {
