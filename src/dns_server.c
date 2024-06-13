@@ -4506,8 +4506,8 @@ static int _dns_server_reply_passthrough(struct dns_server_post_context *context
 		_dns_reply_inpacket(request, context->inpacket, context->inpacket_len);
 		// atomic_add(1, &server.cache_miss);
 		// tlog(TLOG_INFO, "server.cache_miss: %d ", server.cache_miss);
-		atomic_add(1, &server.cache_hit);
-		tlog(TLOG_INFO, "server.cache_hit: %d ", server.cache_hit);
+		//(1, &server.cache_hit);
+		// tlog(TLOG_INFO, "server.cache_hit: %d ", server.cache_hit);
 
 		tlog(TLOG_INFO, "result: %s, client: %s, qtype: %d, id: %d, group: %s, time: %lums", request->domain,
 			 get_host_by_addr(clientip, sizeof(clientip), (struct sockaddr *)&request->addr), request->qtype,
